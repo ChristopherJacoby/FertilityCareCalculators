@@ -33,16 +33,21 @@ const PregCalc = () => {
         p3Box: false
     });
     const [calculated, setCalculated] = useState(false);
-    const [userInfo, setUserInfo] = useState({
-        etcRange: ""
-    });
+    const [etcRange, setEtcRange] = useState("");
+    const [etcMid, setEtcMid] = useState("");
+    const [etaRange, setEtaRange] = useState("");
+    const [etaMid, setEtaMid] = useState("");
+    const [timeOfEval, setTimeOfEval] = useState("");
 
     //Global variables
-    const { etcRange } = userInfo
     let { pSub4, pSub3, pSub2, pSub1, p, p1, p2, p3 } = pDate;
 
     const handleReset = () => {
-
+        setEtaRange("");
+        setEtaMid("");
+        setEtcRange("");
+        setEtcMid("");
+        setTimeOfEval("");
         setEvalDate(null);
         setLmpDate(null);
         setPDate({
@@ -71,31 +76,77 @@ const PregCalc = () => {
     }
 
     const handleCalc = () => {
-        const arr = [];
-        checkState.pSub4Box && arr.push(pSub4)
-        checkState.pSub3Box && arr.push(pSub3)
-        checkState.pSub2Box && arr.push(pSub2)
-        checkState.pSub1Box && arr.push(pSub1)
-        checkState.pBox && arr.push(p)
-        checkState.p1Box && arr.push(p1)
-        checkState.p2Box && arr.push(p2)
-        checkState.p3Box && arr.push(p3)
+        //setup etcRangeArray and push if had intercourse
+        const etcRangeArr = [];
+        checkState.pSub4Box && etcRangeArr.push(pSub4)
+        checkState.pSub3Box && etcRangeArr.push(pSub3)
+        checkState.pSub2Box && etcRangeArr.push(pSub2)
+        checkState.pSub1Box && etcRangeArr.push(pSub1)
+        checkState.pBox && etcRangeArr.push(p)
+        checkState.p1Box && etcRangeArr.push(p1)
+        checkState.p2Box && etcRangeArr.push(p2)
+        checkState.p3Box && etcRangeArr.push(p3)
 
-        if (arr.length < 1) {
+        //create other arrays
+        const etcMidArr = etcRangeArr;
+
+
+        //verify at least 1 day is selected and calc ETC Range dates based on intercourse dates and peak date.
+        if (etcRangeArr.length < 1) {
             alert("Select the date(s) of intercourse.")
         } else {
-            const firstDate = arr[0];
-            const lastDate = arr[arr.length - 1];
+
+            const firstDate = etcRangeArr[0];
+            const lastDate = etcRangeArr[etcRangeArr.length - 1];
 
             if (lastDate < p) {
-                setUserInfo({ etcRange: `${lightFormat(firstDate, "MM-dd-yyyy")} - ${lightFormat(p, "MM-dd-yyyy")}` })
-            } else if (arr.length === 1 && firstDate > p) {
-                setUserInfo({
-                    etcRange: `${lightFormat(firstDate, "MM-dd-yyyy")}`
-                })
+                setEtcRange(`${lightFormat(firstDate, "MM-dd-yyyy")} - ${lightFormat(p, "MM-dd-yyyy")}`)
+            } else if (etcRangeArr.length === 1 && firstDate >= p) {
+                setEtcRange(`${lightFormat(firstDate, "MM-dd-yyyy")}`)
             } else {
-                setUserInfo({ etcRange: `${lightFormat(firstDate, "MM-dd-yyyy")} - ${lightFormat(lastDate, "MM-dd-yyyy")}` })
+                setEtcRange(`${lightFormat(firstDate, "MM-dd-yyyy")} - ${lightFormat(lastDate, "MM-dd-yyyy")}`)
             }
+
+            //calculate ETC midpoint
+            let etcFirstDate
+            let etcLastDate
+
+            if (etcMidArr.length === 1 && etcMidArr[0] > p) {
+                setEtcMid(`${lightFormat(etcMidArr[0], "MM-dd-yyyy")}`)
+            } else if (etcMidArr.length === 1 && etcMidArr[0] < p) {
+                etcFirstDate = etcMidArr[0];
+                etcLastDate = p;
+            } else {
+                etcFirstDate = etcMidArr[0]
+                etcLastDate = etcMidArr[etcMidArr.length - 1];
+            }
+            do {
+                etcFirstDate = add(etcFirstDate, {
+                    days: 1
+                })
+
+                etcLastDate = sub(etcLastDate, {
+                    days: 1
+                })
+            } while (etcFirstDate < etcLastDate);
+
+            if (etcLastDate < etcFirstDate) {
+                setEtcMid(`${lightFormat(etcLastDate, "MM-dd-yyyy")} - ${lightFormat(etcFirstDate, "MM-dd-yyyy")}`)
+            } else {
+                setEtcMid(`${lightFormat(etcLastDate, "MM-dd-yyyy")}`)
+            }
+
+            //calculate Duration of preg
+
+            //calculate ETA Range
+
+            //calculate ETA MidPoint
+
+            //calculate LMP Date
+
+            //calculate Nagaele's Rule and LMP duedates
+
+            //change state to allow table to display
             setCalculated(true)
         }
     }
@@ -244,6 +295,46 @@ const PregCalc = () => {
                                 <TableBody>
                                     <TableRow>
                                         <TableCell>{etcRange}</TableCell>
+                                    </TableRow>
+                                </TableBody>
+                                <TableHead>
+                                    <TableRow>
+                                        <TableCell>ETC MidPoint</TableCell>
+                                    </TableRow>
+                                </TableHead>
+                                <TableBody>
+                                    <TableRow>
+                                        <TableCell>{etcMid}</TableCell>
+                                    </TableRow>
+                                </TableBody>
+                                <TableHead>
+                                    <TableRow>
+                                        <TableCell>Duration of pregnancy at time of evaluation</TableCell>
+                                    </TableRow>
+                                </TableHead>
+                                <TableBody>
+                                    <TableRow>
+                                        <TableCell>{timeOfEval}</TableCell>
+                                    </TableRow>
+                                </TableBody>
+                                <TableHead>
+                                    <TableRow>
+                                        <TableCell>ETA Range</TableCell>
+                                    </TableRow>
+                                </TableHead>
+                                <TableBody>
+                                    <TableRow>
+                                        <TableCell>{etaRange}</TableCell>
+                                    </TableRow>
+                                </TableBody>
+                                <TableHead>
+                                    <TableRow>
+                                        <TableCell>ETA MidPoint</TableCell>
+                                    </TableRow>
+                                </TableHead>
+                                <TableBody>
+                                    <TableRow>
+                                        <TableCell>{etaMid}</TableCell>
                                     </TableRow>
                                 </TableBody>
                             </Table>
