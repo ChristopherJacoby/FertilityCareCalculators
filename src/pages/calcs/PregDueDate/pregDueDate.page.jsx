@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Button, TextField, Table, TableHead, TableCell, TableRow, TableBody, TableContainer, Paper, Container, Checkbox } from '@mui/material';
 import { Favorite, FavoriteBorder } from '@mui/icons-material';
 import DesktopDatePicker from '@mui/lab/DesktopDatePicker';
-import { add, sub, lightFormat } from 'date-fns';
+import { add, sub, lightFormat, addYears, subDays, subMonths } from 'date-fns';
 
 
 
@@ -76,6 +76,7 @@ const PregCalc = () => {
     }
 
     const handleCalc = () => {
+
         //setup etcRangeArray and push if had intercourse
         const etcRangeArr = [];
         checkState.pSub4Box && etcRangeArr.push(pSub4)
@@ -113,32 +114,52 @@ const PregCalc = () => {
 
             if (etcMidArr.length === 1 && etcMidArr[0] > p) {
                 setEtcMid(`${lightFormat(etcMidArr[0], "MM-dd-yyyy")}`)
-            } else if (etcMidArr.length === 1 && etcMidArr[0] < p) {
-                etcFirstDate = etcMidArr[0];
-                etcLastDate = p;
             } else {
-                etcFirstDate = etcMidArr[0]
-                etcLastDate = etcMidArr[etcMidArr.length - 1];
-            }
-            do {
-                etcFirstDate = add(etcFirstDate, {
-                    days: 1
-                })
+                if (etcMidArr.length === 1 && etcMidArr[0] < p) {
+                    etcFirstDate = etcMidArr[0];
+                    etcLastDate = p;
+                } else {
+                    etcFirstDate = etcMidArr[0]
+                    etcLastDate = etcMidArr[etcMidArr.length - 1];
+                }
+                do {
+                    etcFirstDate = add(etcFirstDate, {
+                        days: 1
+                    })
 
-                etcLastDate = sub(etcLastDate, {
-                    days: 1
-                })
-            } while (etcFirstDate < etcLastDate);
+                    etcLastDate = sub(etcLastDate, {
+                        days: 1
+                    })
+                } while (etcFirstDate < etcLastDate);
 
-            if (etcLastDate < etcFirstDate) {
-                setEtcMid(`${lightFormat(etcLastDate, "MM-dd-yyyy")} - ${lightFormat(etcFirstDate, "MM-dd-yyyy")}`)
-            } else {
-                setEtcMid(`${lightFormat(etcLastDate, "MM-dd-yyyy")}`)
+                if (etcLastDate < etcFirstDate) {
+                    lightFormat(etcFirstDate, "dd") % 2 === 0 ? setEtcMid(lightFormat(etcFirstDate, "MM-dd-yyyy")) : setEtcMid(lightFormat(etcLastDate, "MM-dd-yyyy"))
+                } else {
+                    setEtcMid(lightFormat(etcLastDate, "MM-dd-yyyy"))
+                }
             }
 
             //calculate Duration of preg
+            //1 day has 86,400,00 milliseconds.
+            let milliSecAtEval = evalDate - new Date(etcMid)
+            let daysForEval = milliSecAtEval / 86400000;
+            let weeksAtEval = Math.floor(daysForEval / 7);
+            let daysAtEval = Math.floor(daysForEval - weeksAtEval * 7);
+            setTimeOfEval(`${weeksAtEval} week(s) and ${daysAtEval} day(s)`);
 
             //calculate ETA Range
+            const etaFirstDateYear = addYears(firstDate, 1)
+            const etaFirstDateMonth = subMonths(etaFirstDateYear, 3)
+            const etaFirstDate = subDays(etaFirstDateMonth, 7);
+            const etaLastDateYear = addYears(lastDate, 1)
+            const etaLastDateMonth = subMonths(etaLastDateYear, 3)
+            const etaLastDate = subDays(etaLastDateMonth, 7);
+
+            if (etcRangeArr.length === 1) {
+                setEtaRange(`${lightFormat(etaFirstDate, "MM-dd-yyyy")}`)
+            } else {
+                setEtaRange(`${lightFormat(etaFirstDate, "MM-dd-yyyy")} - ${lightFormat(etaLastDate, "MM-dd-yyyy")}`)
+            }
 
             //calculate ETA MidPoint
 
