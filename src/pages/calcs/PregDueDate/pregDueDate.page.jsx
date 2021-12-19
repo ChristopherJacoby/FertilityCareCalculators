@@ -62,6 +62,16 @@ const PregCalc = () => {
         });
         setDatesSelected(false);
         setCalculated(false);
+        setCheckState({
+            pSub4Box: false,
+            pSub3Box: false,
+            pSub2Box: false,
+            pSub1Box: false,
+            pBox: false,
+            p1Box: false,
+            p2Box: false,
+            p3Box: false
+        })
     }
 
     const handleChecks = (event) => {
@@ -89,8 +99,8 @@ const PregCalc = () => {
         checkState.p3Box && etcRangeArr.push(p3)
 
         //create other arrays
-        const etcMidArr = etcRangeArr;
-
+        let etcMidArr = [...etcRangeArr]
+        const etaMidArr = [];
 
         //verify at least 1 day is selected and calc ETC Range dates based on intercourse dates and peak date.
         if (etcRangeArr.length < 1) {
@@ -99,13 +109,29 @@ const PregCalc = () => {
 
             const firstDate = etcRangeArr[0];
             const lastDate = etcRangeArr[etcRangeArr.length - 1];
+            //calculate ETA Range
+            const etaFirstDateYear = addYears(firstDate, 1)
+            const etaFirstDateMonth = subMonths(etaFirstDateYear, 3)
+            const etaFirstDate = subDays(etaFirstDateMonth, 7);
+            const etaLastDateYear = addYears(lastDate, 1)
+            const etaLastDateMonth = subMonths(etaLastDateYear, 3)
+            const etaLastDate = subDays(etaLastDateMonth, 7);
+            const etaPDateYear = addYears(p, 1)
+            const etaPDateMonth = subMonths(etaPDateYear, 3)
+            const etaPDate = subDays(etaPDateMonth, 7);
 
             if (lastDate < p) {
                 setEtcRange(`${lightFormat(firstDate, "MM-dd-yyyy")} - ${lightFormat(p, "MM-dd-yyyy")}`)
+                setEtaRange(`${lightFormat(etaFirstDate, "MM-dd-yyyy")} - ${lightFormat(etaPDate, "MM-dd-yyyy")}`)
+                etaMidArr.push(etaFirstDate, etaPDate)
             } else if (etcRangeArr.length === 1 && firstDate >= p) {
-                setEtcRange(`${lightFormat(firstDate, "MM-dd-yyyy")}`)
+                setEtcRange(`${lightFormat(firstDate, "MM-dd-yyyy")} `)
+                setEtaRange(`${lightFormat(etaFirstDate, "MM-dd-yyyy")} `)
+                etaMidArr.push(etaFirstDate)
             } else {
-                setEtcRange(`${lightFormat(firstDate, "MM-dd-yyyy")} - ${lightFormat(lastDate, "MM-dd-yyyy")}`)
+                setEtcRange(`${lightFormat(firstDate, "MM-dd-yyyy")} - ${lightFormat(lastDate, "MM-dd-yyyy")} `)
+                setEtaRange(`${lightFormat(etaFirstDate, "MM-dd-yyyy")} - ${lightFormat(etaLastDate, "MM-dd-yyyy")} `)
+                etaMidArr.push(etaFirstDate, etaLastDate)
             }
 
             //calculate ETC midpoint
@@ -113,7 +139,7 @@ const PregCalc = () => {
             let etcLastDate
 
             if (etcMidArr.length === 1 && etcMidArr[0] > p) {
-                setEtcMid(`${lightFormat(etcMidArr[0], "MM-dd-yyyy")}`)
+                setEtcMid(`${lightFormat(etcMidArr[0], "MM-dd-yyyy")} `)
             } else {
                 if (etcMidArr.length === 1 && etcMidArr[0] < p) {
                     etcFirstDate = etcMidArr[0];
@@ -133,7 +159,11 @@ const PregCalc = () => {
                 } while (etcFirstDate < etcLastDate);
 
                 if (etcLastDate < etcFirstDate) {
-                    lightFormat(etcFirstDate, "dd") % 2 === 0 ? setEtcMid(lightFormat(etcFirstDate, "MM-dd-yyyy")) : setEtcMid(lightFormat(etcLastDate, "MM-dd-yyyy"))
+                    if (lightFormat(etcFirstDate, "dd") % 2 === 0) {
+                        setEtcMid(lightFormat(etcFirstDate, "MM-dd-yyyy"))
+                    } else {
+                        setEtcMid(lightFormat(etcLastDate, "MM-dd-yyyy"))
+                    }
                 } else {
                     setEtcMid(lightFormat(etcLastDate, "MM-dd-yyyy"))
                 }
@@ -141,27 +171,46 @@ const PregCalc = () => {
 
             //calculate Duration of preg
             //1 day has 86,400,00 milliseconds.
-            let milliSecAtEval = evalDate - new Date(etcMid)
-            let daysForEval = milliSecAtEval / 86400000;
-            let weeksAtEval = Math.floor(daysForEval / 7);
-            let daysAtEval = Math.floor(daysForEval - weeksAtEval * 7);
+            const milliSecAtEval = evalDate - new Date(etcMid)
+            const daysForEval = milliSecAtEval / 86400000;
+            const weeksAtEval = Math.floor(daysForEval / 7);
+            const daysAtEval = Math.floor(daysForEval - weeksAtEval * 7);
             setTimeOfEval(`${weeksAtEval} week(s) and ${daysAtEval} day(s)`);
 
-            //calculate ETA Range
-            const etaFirstDateYear = addYears(firstDate, 1)
-            const etaFirstDateMonth = subMonths(etaFirstDateYear, 3)
-            const etaFirstDate = subDays(etaFirstDateMonth, 7);
-            const etaLastDateYear = addYears(lastDate, 1)
-            const etaLastDateMonth = subMonths(etaLastDateYear, 3)
-            const etaLastDate = subDays(etaLastDateMonth, 7);
-
-            if (etcRangeArr.length === 1) {
-                setEtaRange(`${lightFormat(etaFirstDate, "MM-dd-yyyy")}`)
-            } else {
-                setEtaRange(`${lightFormat(etaFirstDate, "MM-dd-yyyy")} - ${lightFormat(etaLastDate, "MM-dd-yyyy")}`)
-            }
-
             //calculate ETA MidPoint
+            let etaMidFirstDate
+            let etaMidLastDate
+
+            if (etaMidArr.length === 1 && etaMidArr[0] > p) {
+                setEtaMid(`${lightFormat(etaMidArr[0], "MM-dd-yyyy")} `)
+            } else {
+                if (etaMidArr.length === 1 && etaMidArr[0] < p) {
+                    etaMidFirstDate = etaMidArr[0];
+                    etaMidLastDate = p;
+                } else {
+                    etaMidFirstDate = etaMidArr[0]
+                    etaMidLastDate = etaMidArr[etaMidArr.length - 1];
+                }
+                do {
+                    etaMidFirstDate = add(etaMidFirstDate, {
+                        days: 1
+                    })
+
+                    etaMidLastDate = sub(etaMidLastDate, {
+                        days: 1
+                    })
+                } while (etaMidFirstDate < etaMidLastDate);
+
+                if (etaMidLastDate < etaMidFirstDate) {
+                    if (lightFormat(etaMidFirstDate, "dd") % 2 === 0) {
+                        setEtaMid(lightFormat(etaMidFirstDate, "MM-dd-yyyy"))
+                    } else {
+                        setEtaMid(lightFormat(etaMidLastDate, "MM-dd-yyyy"))
+                    }
+                } else {
+                    setEtaMid(lightFormat(etaMidLastDate, "MM-dd-yyyy"))
+                }
+            }
 
             //calculate LMP Date
 
@@ -188,15 +237,6 @@ const PregCalc = () => {
             } else if (evalDateErrorCheck > p) {
                 alert("The Date of Evaluation can't be more than 10 months after the Peak Date.")
             } else {
-                console.log('pSub4', pSub4);
-                console.log('pSub3', pSub3);
-                console.log('pSub2', pSub2);
-                console.log('pSub1', pSub1);
-                console.log('p', p);
-                console.log('p1', p1);
-                console.log('p2', p2);
-                console.log('p3', p3);
-
                 setDatesSelected(true);
             }
         } else {
