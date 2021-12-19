@@ -38,6 +38,8 @@ const PregCalc = () => {
     const [etaRange, setEtaRange] = useState("");
     const [etaMid, setEtaMid] = useState("");
     const [timeOfEval, setTimeOfEval] = useState("");
+    const [nagRule, setNagRule] = useState("");
+    const [lmpETA, setlmpETA] = useState("");
 
     //Global variables
     let { pSub4, pSub3, pSub2, pSub1, p, p1, p2, p3 } = pDate;
@@ -212,9 +214,20 @@ const PregCalc = () => {
                 }
             }
 
-            //calculate LMP Date
-
             //calculate Nagaele's Rule and LMP duedates
+            const nagRuleYear = add(lmpDate, {
+                years: 1
+            })
+            const nagRule = sub(nagRuleYear, {
+                months: 3,
+                days: 7
+            })
+            setNagRule(lightFormat(nagRule, "MM-dd-yyyy"));
+
+            const lmpDateEta = add(lmpDate, {
+                days: 280
+            })
+            setlmpETA(lightFormat(lmpDateEta, "MM-dd-yyyy"));
 
             //change state to allow table to display
             setCalculated(true)
@@ -346,25 +359,17 @@ const PregCalc = () => {
                 }
                 {
                     calculated ?
-                        <TableContainer component={Paper}>
-                            <Table sx={{ minWidth: 650 }} aria-label="simple table" border="1px">
+                        <TableContainer>
+                            <Table>
                                 <TableHead>
                                     <TableRow>
                                         <TableCell>ETC Range</TableCell>
-                                    </TableRow>
-                                </TableHead>
-                                <TableBody>
-                                    <TableRow>
-                                        <TableCell>{etcRange}</TableCell>
-                                    </TableRow>
-                                </TableBody>
-                                <TableHead>
-                                    <TableRow>
                                         <TableCell>ETC MidPoint</TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
                                     <TableRow>
+                                        <TableCell>{etcRange}</TableCell>
                                         <TableCell>{etcMid}</TableCell>
                                     </TableRow>
                                 </TableBody>
@@ -381,21 +386,25 @@ const PregCalc = () => {
                                 <TableHead>
                                     <TableRow>
                                         <TableCell>ETA Range</TableCell>
-                                    </TableRow>
-                                </TableHead>
-                                <TableBody>
-                                    <TableRow>
-                                        <TableCell>{etaRange}</TableCell>
-                                    </TableRow>
-                                </TableBody>
-                                <TableHead>
-                                    <TableRow>
                                         <TableCell>ETA MidPoint</TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
                                     <TableRow>
+                                        <TableCell>{etaRange}</TableCell>
                                         <TableCell>{etaMid}</TableCell>
+                                    </TableRow>
+                                </TableBody>
+                                <TableHead>
+                                    <TableRow>
+                                        <TableCell>Nag Rule</TableCell>
+                                        <TableCell>LMP ETA</TableCell>
+                                    </TableRow>
+                                </TableHead>
+                                <TableBody>
+                                    <TableRow>
+                                        <TableCell>{nagRule}</TableCell>
+                                        <TableCell>{lmpETA}</TableCell>
                                     </TableRow>
                                 </TableBody>
                             </Table>
