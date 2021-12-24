@@ -1,15 +1,32 @@
-import React from 'react';
-import { Table, TableHead, TableCell, TableRow, TableBody, TableContainer, Paper, Container } from '@mui/material';
+import { useState } from 'react';
+import { Table, TableHead, TableCell, TableRow, TableBody, TableContainer, Container, Select, MenuItem, InputLabel, FormControl } from '@mui/material';
 
 const MCS = () => {
 
-    const handleChange = (event) => {
-        console.log(event);
+    const [p5Data, setP5Data] = useState({
+        stretch: "",
+        specialConsistency: "",
+        color: "",
+        sensation: "",
+        desc: ""
+    });
+    const handleP5Change = (event) => {
+        const { name, value } = event.target
+        setP5Data((prevData) => {
+            return {
+                ...prevData,
+                [name]: value
+            };
+        });
+    }
+
+    const handleCheckState = () => {
+        console.log(p5Data);
 
     }
 
     return (
-        <Container>
+        <Container disableGutters={true}>
             <h2>Mucus Cycle Score Calculator</h2>
             <TableContainer>
                 <Table>
@@ -24,45 +41,78 @@ const MCS = () => {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        <TableRow>
+                        <TableRow onChange={handleP5Change}>
                             <TableCell>Day P-5:</TableCell>
                             <TableCell>
-                                <select name="stretch" onChange={handleChange}>
-                                    <option value="err">Select Stretch</option>
-                                    <option value="2">Sticky (6)</option>
-                                    <option value="2">Tacky (8)</option>
-                                    <option value="4">Stretchy (10)</option>
-                                </select>
+                                <FormControl sx={{ m: 1, minWidth: 120 }}>
+                                    <InputLabel>Stretch</InputLabel>
+                                    <Select
+                                        name="stretch"
+                                        value={p5Data.stretch}
+                                        label="Stretch"
+                                        onChange={handleP5Change}
+                                    >
+                                        <MenuItem value="">Select Stretch</MenuItem>
+                                        <MenuItem value="Sticky (6)">Sticky (6)</MenuItem>
+                                        <MenuItem value="Tacky (8)">Tacky (8)</MenuItem>
+                                        <MenuItem value="Stretchy (10)">Stretchy (10)</MenuItem>
+                                    </Select>
+                                </FormControl>
                             </TableCell>
                             <TableCell>
-                                <select name="specialConsistencies">
-                                    <option value="err">Select Consistency</option>
-                                    <option value="2">Pasty, Cloudy (PC)</option>
-                                    <option value="2">Sticky, Pasty, Cloudy (6PC)</option>
-                                    <option value="2">Gummy, No Color (G)</option>
-                                </select>
+                                <FormControl sx={{ m: 1, minWidth: 120 }}>
+                                    <InputLabel>Consistency</InputLabel>
+                                    <Select
+                                        name="specialConsistency"
+                                        value={p5Data.specialConsistency}
+                                        label="Consistency"
+                                        onChange={handleP5Change}
+                                    >
+                                        <MenuItem value="">Select Consistency</MenuItem>
+                                        <MenuItem value="Pasty, Cloudy (PC)">Pasty, Cloudy (PC)</MenuItem>
+                                        <MenuItem value="Sticky, Pasty, Cloudy (6PC)">Sticky, Pasty, Cloudy (6PC)</MenuItem>
+                                        <MenuItem value="Gummy, No Color (G)">Gummy, No Color (G)</MenuItem>
+                                    </Select>
+                                </FormControl>
                             </TableCell>
                             <TableCell>
-                                <select name="specialConsistencies">
-                                    <option value="err">Select Color</option>
-                                    <option value="2">Cloudy (C)</option>
-                                    <option value="2">Yellow Only (Y)</option>
-                                    <option value="4">Clear (K) or Cloudy/Clear (C/K)</option>
-                                </select>
+                                <FormControl sx={{ m: 1, minWidth: 120 }}>
+                                    <InputLabel>Color</InputLabel>
+                                    <Select
+                                        name="color"
+                                        value={p5Data.color}
+                                        label="Color"
+                                        onChange={handleP5Change}
+                                    >
+                                        <MenuItem value="">Select Color</MenuItem>
+                                        <MenuItem value="Cloudy (C)">Cloudy (C)</MenuItem>
+                                        <MenuItem value="Yellow Only (Y)">Yellow Only (Y)</MenuItem>
+                                        <MenuItem value="Clear (K) or Cloudy/Clear (C/K)">Clear (K) or Cloudy/Clear (C/K)</MenuItem>
+                                    </Select>
+                                </FormControl>
                             </TableCell>
                             <TableCell>
-                                <select name="specialConsistencies">
-                                    <option value="err">Select Lubrication</option>
-                                    <option value="0">Dry</option>
-                                    <option value="2">Non-Lubricative</option>
-                                    <option value="8">Lubricative</option>
-                                </select>
+                                <FormControl sx={{ m: 1, minWidth: 120 }}>
+                                    <InputLabel>Sensation</InputLabel>
+                                    <Select
+                                        name="sensation"
+                                        value={p5Data.sensation}
+                                        label="Sensation"
+                                        onChange={handleP5Change}
+                                    >
+                                        <MenuItem value="">Select Sensation</MenuItem>
+                                        <MenuItem value="Dry">Dry</MenuItem>
+                                        <MenuItem value="Non-Lubricative">Non-Lubricative</MenuItem>
+                                        <MenuItem value="Lubricative">Lubricative</MenuItem>
+                                    </Select>
+                                </FormControl>
                             </TableCell>
-                            <TableCell>Data</TableCell>
+                            <TableCell>{p5Data.desc}</TableCell>
                         </TableRow>
                     </TableBody>
                 </Table>
             </TableContainer>
+            <button onClick={handleCheckState}>Check state</button>
         </Container>
     );
 }
