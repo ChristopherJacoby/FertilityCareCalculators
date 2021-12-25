@@ -7,8 +7,7 @@ const MCS = () => {
         stretch: "",
         specialConsistency: "",
         color: "",
-        sensation: "",
-        desc: ""
+        sensation: ""
     });
     const handleP5Change = (event) => {
         const { name, value } = event.target
@@ -22,7 +21,6 @@ const MCS = () => {
 
     const handleCheckState = () => {
         console.log(p5Data);
-
     }
 
     return (
@@ -107,7 +105,7 @@ const MCS = () => {
                                     </Select>
                                 </FormControl>
                             </TableCell>
-                            <TableCell>{p5Data.desc}</TableCell>
+                            <TableCell></TableCell>
                         </TableRow>
                     </TableBody>
                 </Table>
